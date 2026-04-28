@@ -1,148 +1,107 @@
-// ============ GOOGLE APPS SCRIPT BACKEND ============
-// File: Code.gs (Deploy as Web App)
-
-function doPost(e) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getActiveSheet();
-    
-    // Parse incoming data
-    var data = JSON.parse(e.postData.contents);
-    
-    // Validate required fields
-    if (!data.nama || !data.telp || !data.sekolah || !data.id_daftar) {
-      return ContentService.createTextOutput(JSON.stringify({
-        "result": "error", 
-        "message": "Missing required fields"
-      })).setMimeType(ContentService.MimeType.JSON);
-    }
-    
-    // Add row to spreadsheet
-    sheet.appendRow([
-      new Date(),
-      data.nama,
-      data.ttl,
-      data.telp,
-      data.sekolah,
-      data.id_daftar
-    ]);
-    
-    sheet.setRowHeight(sheet.getLastRow(), 30);
-    
-    return ContentService.createTextOutput(JSON.stringify({
-      "result": "success",
-      "message": "Data saved successfully",
-      "id": data.id_daftar
-    })).setMimeType(ContentService.MimeType.JSON);
-    
-  } catch(error) {
-    return ContentService.createTextOutput(JSON.stringify({
-      "result": "error",
-      "message": error.toString()
-    })).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-// ============ FRONTEND JAVASCRIPT ============
-// File: registration.html or in script tag
-
-async function prosesPendaftaran() {
-    const nama = document.getElementById('nama').value.trim();
-    const ttl = document.getElementById('ttl').value.trim();
-    const telp = document.getElementById('telp').value.trim();
-    const sekolah = document.getElementById('sekolah').value.trim();
-
-    // Validation
-    if(!nama || !ttl || !telp || !sekolah) {
-        alert("⚠️ Harap lengkapi semua data!");
-        return;
-    }
-
-    // Validate phone number (basic)
-    if(telp.length < 10 || telp.length > 13) {
-        alert("⚠️ Nomor telepon tidak valid!");
-        return;
-    }
-
-    // Generate unique ID
-    const idUnik = "UTA45-" + Math.floor(Date.now() / 1000);
-    const dataKirim = { 
-        nama: nama.toUpperCase(), 
-        ttl: ttl,
-        telp: telp, 
-        sekolah: sekolah.toUpperCase(), 
-        id_daftar: idUnik 
-    };
-
-    // Show loading state
-    const btn = document.querySelector('button');
-    const originalText = btn.innerText;
-    btn.innerText = "⏳ Sedang Menyimpan...";
-    btn.disabled = true;
-
-    try {
-        // SEND DATA TO GOOGLE SHEETS
-        // Replace 'YOUR_DEPLOYMENT_URL_HERE' with your Google Apps Script deployment URL
-        const response = await fetch('YOUR_DEPLOYMENT_URL_HERE', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dataKirim)
-        });
-        
-        // Check if response is OK
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTA'45 Jakarta - Form Promosi Digital</title>
+    <style>
+        /* Gaya Tampilan (CSS) */
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: #f0f2f5; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
         }
-
-        const result = await response.json();
-        
-        // Check server response
-        if (result.result !== 'success') {
-            alert(`❌ Gagal: ${result.message || 'Unknown error'}`);
-            btn.innerText = originalText;
-            btn.disabled = false;
-            return;
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 400px; 
+            border-top: 10px solid #b30000; 
         }
-
-        // Display registration card
-        document.getElementById('resID').innerText = idUnik;
-        document.getElementById('resNama').innerText = nama;
-        document.getElementById('resTTL').innerText = ttl;
-        document.getElementById('resSekolah').innerText = sekolah;
-
-        // Generate barcode
-        if(typeof JsBarcode !== 'undefined') {
-            JsBarcode("#barcode", idUnik, { 
-                format: "CODE128", 
-                displayValue: true,
-                height: 50,
-                width: 2
-            });
+        h2 { 
+            color: #b30000; 
+            margin-bottom: 5px; 
+            text-align: center; 
         }
+        p { 
+            color: #555; 
+            text-align: center; 
+            font-size: 14px; 
+            margin-bottom: 20px; 
+        }
+        label { 
+            display: block; 
+            margin-top: 15px; 
+            font-weight: bold; 
+            font-size: 14px; 
+            color: #333; 
+        }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 5px; 
+            border: 1px solid #ccc; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 14px; 
+        }
+        button { 
+            width: 100%; 
+            background: #b30000; 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            margin-top: 25px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px; 
+            transition: 0.3s; 
+        }
+        button:hover { 
+            background: #800000; 
+            transform: translateY(-2px); 
+        }
+        .footer-text { 
+            font-size: 11px; 
+            color: #999; 
+            text-align: center; 
+            margin-top: 20px; 
+        }
+    </style>
+</head>
+<body>
 
-        // Hide form and show card
-        document.querySelector('.no-print').style.display = 'none';
-        document.getElementById('registrationCard').style.display = 'block';
-        
-        // Show success message
-        alert("✅ Pendaftaran berhasil! Silakan cetak kartu registrasi Anda.");
-        
-    } catch (error) {
-        console.error('Error:', error);
-        alert("❌ Gagal menyimpan data ke Google Sheets.\n\nPastikan:\n1. URL deployment sudah benar\n2. Koneksi internet aktif\n3. Google Apps Script sudah di-deploy");
-        btn.innerText = originalText;
-        btn.disabled = false;
-    }
-}
+<div class="card">
+    <h2>UTA'45 Jakarta</h2>
+    <p>Selamat bagi peserta UTBK/SNBT! Isi data di bawah untuk mendapatkan E-Book Panduan Karir Gratis.</p>
 
-// Optional: Reset form
-function resetForm() {
-    document.getElementById('registrationForm').reset();
-    document.querySelector('.no-print').style.display = 'block';
-    document.getElementById('registrationCard').style.display = 'none';
-    const btn = document.querySelector('button');
-    btn.innerText = "Daftar";
-    btn.disabled = false;
-}
+    <form action="https://formspree.io/f/mbdqvewk" method="POST">
+        <label>Nama Lengkap</label>
+        <input type="text" name="nama" placeholder="Masukkan nama sesuai KTP/Kartu Pelajar" required>
+
+        <label>Asal Sekolah</label>
+        <input type="text" name="sekolah" placeholder="Contoh: SMA Negeri 1 Jakarta" required>
+
+        <label>No. WhatsApp</label>
+        <input type="tel" name="whatsapp" placeholder="0812xxxxxxxx" required>
+
+        <input type="hidden" name="_next" value="https://pendaftaran.uta45jakarta.ac.id/">
+        
+        <button type="submit">AMBIL E-BOOK & DAFTAR</button>
+    </form>
+    
+    <div class="footer-text">
+        © 2026 Universitas 17 Agustus 1945 Jakarta <br>
+        Digital Marketing Support System
+    </div>
+</div>
+
+</body>
+</html>

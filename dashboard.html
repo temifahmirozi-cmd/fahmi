@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahasiswa Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .button {
+            margin: 10px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        @media (max-width: 600px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            th {
+                display: none;
+            }
+            tr {
+                margin-bottom: 10px;
+            }
+            td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+            }
+            td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 50%;
+                padding-left: 10px;
+                text-align: left;
+                font-weight: bold;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Dashboard Calon Mahasiswa</h1>
+</header>
+
+<input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterData()">
+<button class="button" onclick="exportToCSV()">Export to CSV</button>
+<button class="button" onclick="window.print()">Print</button>
+
+<div id="stats">
+    <h2>Statistics</h2>
+    <p id="total"></p>
+    <p id="uta45"></p>
+    <p id="otherSchools"></p>
+</div>
+
+<table id="data-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>School</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="table-body">
+        <!-- Data will be populated here -->
+    </tbody>
+</table>
+
+<script>
+    const apiUrl = 'YOUR_GOOGLE_APPS_SCRIPT_URL'; // Change this to your Google Apps Script URL
+    const dataTableBody = document.getElementById('table-body');
+    const totalStats = document.getElementById('total');
+    const uta45Stats = document.getElementById('uta45');
+    const otherSchoolsStats = document.getElementById('otherSchools');
+
+    async function loadData() {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        populateTable(data);
+    }
+
+    function populateTable(data) {
+        dataTableBody.innerHTML = '';
+        let total = data.length;
+        let uta45Count = 0;
+        let otherCount = 0;
+
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td data-label='Name'>${item.name}</td><td data-label='School'>${item.school}</td><td data-label='Status'>${item.status}</td>`;
+            dataTableBody.appendChild(row);
+
+            if (item.school === 'UTA45') {
+                uta45Count++;
+            } else {
+                otherCount++;
+            }
+        });
+        totalStats.innerHTML = 'Total: ' + total;
+        uta45Stats.innerHTML = 'From UTA45: ' + uta45Count;
+        otherSchoolsStats.innerHTML = 'From Other Schools: ' + otherCount;
+    }
+
+    function filterData() {
+        const filter = document.getElementById('searchInput').value.toLowerCase();
+        const rows = dataTableBody.getElementsByTagName('tr');
+        for (let row of rows) {
+            const nameCell = row.getElementsByTagName('td')[0];
+            if (nameCell) {
+                const txtValue = nameCell.textContent || nameCell.innerText;
+                row.style.display = txtValue.toLowerCase().includes(filter) ? '' : 'none';
+            }
+        }
+    }
+
+    function exportToCSV() {
+        // Export functionality to be added
+    }
+
+    function refreshData() {
+        loadData();
+    }
+
+    // Load data initially
+    loadData();
+    // Set an interval to refresh data every 5 minutes
+    setInterval(refreshData, 300000);
+</script>
+</body>
+</html>

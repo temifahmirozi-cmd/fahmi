@@ -3,94 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PMB UTA '45 Jakarta - UTBK 2026</title>
+    <title>Formulir Calon Mahasiswa UTA '45 Jakarta</title>
     <style>
-        /* Gaya Visual Modern & Mobile Friendly */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            margin: 0;
+            padding: 20px;
         }
-        .card {
+        .form-card {
             background: white;
-            padding: 2rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
         }
         .header {
-            color: #d32f2f; /* Warna Merah UTA '45 */
-            margin-bottom: 1rem;
+            text-align: center;
+            margin-bottom: 25px;
         }
-        .promo-text {
-            color: #555;
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
-        }
-        /* Bagian Barcode */
-        .qr-section {
-            background: #fff;
-            padding: 15px;
-            border: 2px dashed #d32f2f;
-            border-radius: 15px;
-            margin-bottom: 1.5rem;
-        }
-        .qr-section img {
+        .header h2 { color: #d32f2f; margin: 0; }
+        .header p { color: #666; font-size: 0.9rem; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        input {
             width: 100%;
-            max-width: 180px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box; /* Penting agar padding tidak merusak layout */
+            font-size: 1rem;
         }
-        /* Tombol Pendaftaran */
-        .btn-pendaftaran {
-            display: block;
+        input:focus { border-color: #d32f2f; outline: none; }
+        
+        button {
+            width: 100%;
             background-color: #d32f2f;
             color: white;
-            padding: 14px;
-            text-decoration: none;
-            border-radius: 30px;
-            font-weight: bold;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
             font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
             transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+            margin-top: 10px;
         }
-        .btn-pendaftaran:hover {
-            background-color: #b71c1c;
-            transform: translateY(-2px);
+        button:hover { background-color: #b71c1c; }
+        
+        #success-message {
+            display: none;
+            text-align: center;
+            padding: 20px;
         }
-        .footer {
-            margin-top: 1.5rem;
-            font-size: 0.75rem;
-            color: #999;
+        .qr-result {
+            width: 150px;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+            padding: 10px;
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h1 class="header">UTA '45 Jakarta</h1>
-        <p class="promo-text">
-            <strong>Halo Calon Mahasiswa!</strong><br>
-            Lupakan cara lama. Scan barcode di bawah untuk klaim beasiswa dan daftar kuliah hari ini!
-        </p>
-
-        <div class="qr-section">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://pendaftaran.uta45jakarta.ac.id/" alt="QR Code Pendaftaran">
-            <p style="margin-top: 10px; font-weight: bold; color: #333;">SCAN UNTUK MENDAFTAR</p>
-        </div>
-
-        <a href="https://pendaftaran.uta45jakarta.ac.id/" class="btn-pendaftaran">Daftar Sekarang</a>
-
-        <div class="footer">
-            Tim Promosi Technopreneurship © 2026<br>
-            Universitas 17 Agustus 1945 Jakarta
-        </div>
+<div class="form-card" id="main-content">
+    <div class="header">
+        <h2>Daftar UTA '45 Jakarta</h2>
+        <p>Isi data diri untuk mendapatkan info beasiswa & akses pendaftaran</p>
     </div>
+
+    <form id="leadForm">
+        <div class="form-group">
+            <label>Nama Lengkap</label>
+            <input type="text" id="nama" placeholder="Contoh: Budi Santoso" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Tempat, Tanggal Lahir</label>
+            <input type="text" id="ttl" placeholder="Jakarta, 12-05-2008" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Nomor WhatsApp</label>
+            <input type="tel" id="telp" placeholder="0812xxxxxxxx" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Asal Sekolah</label>
+            <input type="text" id="sekolah" placeholder="SMA / SMK / MA..." required>
+        </div>
+
+        <button type="submit">Dapatkan Akses Pendaftaran</button>
+    </form>
+</div>
+
+<div class="form-card" id="success-message">
+    <h2 style="color: #2e7d32;">Terima Kasih!</h2>
+    <p>Data Anda telah tersimpan. Silakan lanjut ke pendaftaran resmi:</p>
+    
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://pendaftaran.uta45jakarta.ac.id/" class="qr-result" alt="QR Pendaftaran">
+    
+    <br><br>
+    <a href="https://pendaftaran.uta45jakarta.ac.id/" style="text-decoration: none; color: white; background: #d32f2f; padding: 12px 25px; border-radius: 25px; display: inline-block; font-weight: bold;">Ke Laman Pendaftaran</a>
+</div>
+
+<script>
+    document.getElementById('leadForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Mengambil data dari form
+        const dataCalon = {
+            nama: document.getElementById('nama').value,
+            ttl: document.getElementById('ttl').value,
+            telp: document.getElementById('telp').value,
+            sekolah: document.getElementById('sekolah').value
+        };
+
+        // Simulasi penyimpanan data (Dalam prakteknya dikirim ke Database/Google Sheets)
+        console.log("Data Calon Mahasiswa Terinput:", dataCalon);
+        alert("Data berhasil dicatat oleh sistem Tim Promosi!");
+
+        // Sembunyikan form, tampilkan pesan sukses & link pendaftaran
+        document.getElementById('main-content').style.display = 'none';
+        document.getElementById('success-message').style.display = 'block';
+    });
+</script>
 
 </body>
 </html>
